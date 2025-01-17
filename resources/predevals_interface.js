@@ -1,4 +1,4 @@
-import App from "https://cdn.jsdelivr.net/gh/hubverse-org/predevals@0.0.2/dist/predevals.bundle.js";
+import App from "https://cdn.jsdelivr.net/gh/hubverse-org/predevals@405f8ccaf8334a51609f07ea886e9e825f073092/dist/predevals.bundle.js";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 document.predevals = App;  // for debugging
