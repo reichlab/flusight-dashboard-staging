@@ -1,4 +1,4 @@
-name: "Rebuild Data"
+name: "Rebuild oracle output"
 on:
   schedule:
     - cron: "33 15 * * 4" # every Thursday at 3:45PM UTC == 10:33AM EST
