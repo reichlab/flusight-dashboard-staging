@@ -3,39 +3,51 @@ on:
   schedule:
     - cron: "33 17 * * 4" # every Thursday at 5:45PM UTC == 12:33PM EST
   workflow_dispatch:
-
-permissions:
-  contents: write
+    inputs:
+      repo:
+        description: "Repositories to build (space-separated owner/repo list)"
+        type: string
+        required: false
+      regenerate:
+        description: "(Forecast) Regenerate Model Output Data"
+        type: boolean
+        required: false
+        default: false
+      publish:
+        description: "Push Data to branch (uncheck for a dry run)"
+        type: boolean
+        required: false
+        default: true
+  repository_dispatch:
+    types:
+      - "data"
+      - "targets"
+      - "forecasts"
 
 jobs:
-  setup:
-    name: "Setup"
-    runs-on: "ubuntu-latest"
-    outputs:
-      repo: ${{ steps.echo.outputs.repo }}
-      email: ${{ steps.echo.outputs.email }}
-      slug: ${{ steps.echo.outputs.slug }}
-    steps:
-      - id: echo
-        run: |
-          name="${{ github.event.repository.name }}"
-          owner="${{ github.event.repository.owner.login }}"
-          id="${{ github.event.repository.owner.id }}"
-          email="$id+$owner@users.noreply.github.com"
-          {
-            echo 'repo<<EOF'
-            echo [{'"'name'"': '"'$name'"', '"'owner'"': '"'$owner'"'}]
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
-          echo slug=$owner >> "$GITHUB_OUTPUT"
-          echo email=$email >> "$GITHUB_OUTPUT"
-  site:
-    needs: [setup]
+  repos:
+    uses: hubverse-org/hub-dashboard-control-room/.github/workflows/get-installations.yaml@main
+    with:
+      newbies: '${{ toJSON(github.event.client_payload.newbies) }}'
+      repo: '${{ inputs.repo }}'
+    secrets:
+      id: ${{ vars.APP_ID }}
+      key: ${{ secrets.PRIVATE_KEY }}
+  run:
+    needs: [repos]
+    strategy:
+      fail-fast: false
+      matrix:
+        site: ${{ fromJSON(needs.repos.outputs.repos) }}
     uses: hubverse-org/hub-dashboard-control-room/.github/workflows/generate-data.yaml@main
     with:
-      repos: '${{ needs.setup.outputs.repo }}'
-      slug: '${{ needs.setup.outputs.slug }}'
-      email: '${{ needs.setup.outputs.email }}'
+      owner: '${{ matrix.site.owner }}'
+      name: '${{ matrix.site.name }}'
+      slug: '${{ needs.repos.outputs.slug }}'
+      email: '${{ needs.repos.outputs.email }}'
+      regenerate: ${{ github.event.client_payload.regenerate || inputs.regenerate || false }}
+      build: ${{ github.event.client_payload.build || 'both' }}
+      publish: ${{ inputs.publish || github.event_name != 'workflow_dispatch' }}
     secrets:
-      id: 'none'
-      key: ${{ secrets.GITHUB_TOKEN }}
+      id: ${{ vars.APP_ID }}
+      key: ${{ secrets.PRIVATE_KEY }}
