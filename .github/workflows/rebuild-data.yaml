@@ -8,6 +8,7 @@ on:
         description: "Repositories to build (space-separated owner/repo list)"
         type: string
         required: false
+        default: "reichlab/flusight-dashboard"
       regenerate:
         description: "(Forecast) Regenerate Model Output Data"
         type: boolean
