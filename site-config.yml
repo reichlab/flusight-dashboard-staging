@@ -4,6 +4,13 @@ title: "FluSight Forecast Hub Dashboard"
 html:
   include-after-body:
     - text: |
+        <!-- Privacy-friendly analytics by Plausible -->
+        <script async src="https://plausible.io/js/pa-DOosbUzSYYO66nV9P5iOt.js"></script>
+        <script>
+          window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+          plausible.init()
+        </script>
+    - text: |
         <!-- Default Statcounter code for CDC FluSight Hub Dashboard https://reichlab.io/flusight-dashboard/ -->
         <script type="text/javascript">
         var sc_project=13093554;
